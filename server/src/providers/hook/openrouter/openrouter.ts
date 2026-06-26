@@ -122,4 +122,11 @@ export const openrouterProvider: HookProvider = {
   subagentToolNames: new Set(['Classifier', 'Searcher', 'Drafter', 'Reviewer']),
   readingTools: new Set(['Searcher']),
   terminalNamePrefix: 'openrouter',
+
+  getSessionDirs(workspacePath: string): string[] {
+    return [workspacePath];
+  },
+  getAllSessionRoots(): string[] {
+    return [];
+  }
 };

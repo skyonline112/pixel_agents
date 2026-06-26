@@ -244,7 +244,12 @@ export function isTrackedProjectDir(dir: string): boolean {
   // Case-insensitive fallback for Windows (drive letter casing: c:\ vs C:\)
   const resolved = path.resolve(dir).toLowerCase();
   for (const tracked of trackedProjectDirs) {
-    if (path.resolve(tracked).toLowerCase() === resolved) return true;
+    const trackedResolved = path.resolve(tracked).toLowerCase();
+    if (resolved === trackedResolved) return true;
+    // Check if resolved path is a subdirectory of tracked path, or vice versa
+    if (resolved.startsWith(trackedResolved + path.sep) || trackedResolved.startsWith(resolved + path.sep)) {
+      return true;
+    }
   }
   return false;
 }
