@@ -27,7 +27,7 @@ import { CharacterState, TILE_SIZE } from '../types.js';
 // shows ONLY the checkmark (the label falls through to its normal idle text);
 // going idle waiting on the user (Notification(idle_prompt)) additionally
 // surfaces this label. Driven by Character.waitingAwaitingInput.
-const WAITING_INPUT_ACTIVITY_TEXT = 'Waiting for input';
+const WAITING_INPUT_ACTIVITY_TEXT = '입력 대기 중';
 
 interface ToolOverlayProps {
   officeState: OfficeState;
@@ -49,7 +49,7 @@ function getActivityText(
   bubbleType: 'permission' | 'waiting' | null,
   waitingAwaitingInput: boolean,
 ): string {
-  if (bubbleType === 'permission') return 'Needs approval';
+  if (bubbleType === 'permission') return '승인 대기 중';
   // Only the idle case ("Waiting for input") gets a dedicated label. A finished
   // turn (Stop, waitingAwaitingInput=false) falls through so the checkmark alone
   // signals "done", same as the original behavior.
@@ -60,7 +60,7 @@ function getActivityText(
     // Find the latest non-done tool
     const activeTool = [...tools].reverse().find((t) => !t.done);
     if (activeTool) {
-      if (activeTool.permissionWait) return 'Needs approval';
+      if (activeTool.permissionWait) return '승인 대기 중';
       return activeTool.status;
     }
     // All tools done but agent still active (mid-turn) — keep showing last tool status
@@ -70,7 +70,7 @@ function getActivityText(
     }
   }
 
-  return 'Idle';
+  return '대기 중';
 }
 
 function getFuelColor(ratio: number): string {
@@ -168,10 +168,10 @@ export function ToolOverlay({
           activityText = WAITING_INPUT_ACTIVITY_TEXT;
         } else if (isSub) {
           if (subHasPermission) {
-            activityText = 'Needs approval';
+            activityText = '승인 대기 중';
           } else {
             const sub = subagentCharacters.find((s) => s.id === id);
-            activityText = sub ? sub.label : 'Subtask';
+            activityText = sub ? sub.label : '하위 작업';
           }
         } else {
           activityText = getActivityText(
@@ -261,7 +261,7 @@ export function ToolOverlay({
                     e.stopPropagation();
                     onCloseAgent(id);
                   }}
-                  title="Close agent"
+                  title="에이전트 종료"
                   className="ml-2 shrink-0 leading-none"
                 >
                   ×

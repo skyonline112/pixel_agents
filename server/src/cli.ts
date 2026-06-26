@@ -21,7 +21,7 @@ import {
 } from './assetLoader.js';
 import type { AssetCache } from './clientMessageHandler.js';
 import { FileStateAdapter } from './fileStateAdapter.js';
-import { claudeProvider, copyHookScript } from './providers/index.js';
+import { copyHookScript,openrouterProvider } from './providers/index.js';
 import { PixelAgentsServer } from './server.js';
 
 // ── Argument parsing ──────────────────────────────────────────
@@ -87,7 +87,7 @@ async function main(): Promise<void> {
 
   try {
     // Create runtime first (before server.start, so we can pass it in)
-    const runtime = new AgentRuntime(store, claudeProvider);
+    const runtime = new AgentRuntime(store, openrouterProvider);
 
     // Wire hook events: HTTP POST -> runtime -> hookEventHandler -> agents
     server.onHookEvent((providerId, event) => {
@@ -100,14 +100,14 @@ async function main(): Promise<void> {
     const onSetHooksEnabled = async (enabled: boolean): Promise<void> => {
       if (!currentConfig) return;
       if (enabled) {
-        await claudeProvider.installHooks(
+        await openrouterProvider.installHooks(
           `http://127.0.0.1:${currentConfig.port}`,
           currentConfig.token,
         );
         copyHookScript(distRoot);
         console.log('[Pixel Agents] Hooks installed (user toggle)');
       } else {
-        await claudeProvider.uninstallHooks();
+        await openrouterProvider.uninstallHooks();
         console.log('[Pixel Agents] Hooks uninstalled (user toggle)');
       }
     };
@@ -131,7 +131,7 @@ async function main(): Promise<void> {
     // Install hooks on startup if the persisted setting says so
     if (runtime.hooksEnabled.current) {
       try {
-        await claudeProvider.installHooks(`http://127.0.0.1:${config.port}`, config.token);
+        await openrouterProvider.installHooks(`http://127.0.0.1:${config.port}`, config.token);
         copyHookScript(distRoot);
         console.log('[Pixel Agents] Hooks installed');
       } catch (err) {
@@ -141,7 +141,7 @@ async function main(): Promise<void> {
 
     // Start scanning for external sessions (Claude running in user's terminal)
     const cwd = process.cwd();
-    const dirs = claudeProvider.getSessionDirs?.(cwd);
+    const dirs = openrouterProvider.getSessionDirs?.(cwd);
     if (dirs && dirs[0]) {
       const projectDir = dirs[0];
       console.log(`[Pixel Agents] Scanning project dir: ${projectDir}`);

@@ -11,6 +11,10 @@ const STATUS_TO_TOOL: Record<string, string> = {
   Editing: 'Edit',
   Running: 'Bash',
   Task: 'Task',
+  '민원': 'Classifier',
+  '법령': 'Searcher',
+  '답변': 'Drafter',
+  '초안': 'Reviewer',
 };
 
 export function extractToolName(status: string): string | null {

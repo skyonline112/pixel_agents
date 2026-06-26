@@ -13,6 +13,22 @@ const versionDefine = {
   'process.env.PIXEL_AGENTS_VERSION': JSON.stringify(pkgVersion),
 };
 
+function copyDirSync(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 /**
  * Copy assets folder to dist/assets
  */
@@ -26,8 +42,8 @@ function copyAssets() {
       fs.rmSync(dstDir, { recursive: true });
     }
 
-    // Copy recursively
-    fs.cpSync(srcDir, dstDir, { recursive: true });
+    // Copy recursively using the custom copyDirSync
+    copyDirSync(srcDir, dstDir);
     console.log('✓ Copied assets/ → dist/assets/');
   } else {
     console.log('ℹ️  assets/ folder not found (optional)');
