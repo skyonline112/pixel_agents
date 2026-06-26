@@ -499,7 +499,7 @@ export function sendExistingAgents(
   agentIds.sort((a, b) => a - b);
 
   // Include persisted palette/seatId from separate key
-  const agentMeta = adapter.loadSeats();
+  const agentMeta = adapter.loadSeats() as Record<number, Record<string, unknown>>;
 
   // Include folderName and isExternal per agent
   const folderNames: Record<number, string> = {};
@@ -510,6 +510,19 @@ export function sendExistingAgents(
     }
     if (agent.isExternal) {
       externalAgents[id] = true;
+    }
+    if (!agentMeta[id]) {
+      agentMeta[id] = {};
+    }
+    if (agent.palette !== undefined) {
+      agentMeta[id].palette = agent.palette;
+    }
+    if (agent.agentName !== undefined) {
+      agentMeta[id].agentName = agent.agentName;
+      agentMeta[id].teammateName = agent.agentName;
+    }
+    if (agent.teamName !== undefined) {
+      agentMeta[id].teamName = agent.teamName;
     }
   }
   console.log(

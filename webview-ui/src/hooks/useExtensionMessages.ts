@@ -120,6 +120,8 @@ export function useExtensionMessages(
       hueShift?: number;
       seatId?: string;
       folderName?: string;
+      agentName?: string;
+      teamName?: string;
     }> = [];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -172,6 +174,11 @@ export function useExtensionMessages(
         // Add buffered agents now that layout (and seats) are correct
         for (const p of pendingAgents) {
           os.addAgent(p.id, p.palette, p.hueShift, p.seatId, true, p.folderName);
+          const ch = os.characters.get(p.id);
+          if (ch) {
+            if (p.agentName) ch.agentName = p.agentName;
+            if (p.teamName) ch.teamName = p.teamName;
+          }
         }
         pendingAgents = [];
         layoutReadyRef.current = true;
@@ -189,6 +196,8 @@ export function useExtensionMessages(
         const teammateName = msg.teammateName as string | undefined;
         const teammateParentId = msg.parentAgentId as number | undefined;
         const teamName = msg.teamName as string | undefined;
+        const preferredPalette = msg.palette as number | undefined;
+        const agentName = msg.agentName as string | undefined;
         setAgents((prev) => (prev.includes(id) ? prev : [...prev, id]));
         // Don't auto-select teammates (keep focus on lead)
         if (!isTeammate) {
@@ -198,7 +207,7 @@ export function useExtensionMessages(
           // Teammate: inherit parent's palette and workspace folderName (teammate runs
           // in the same workspace as the lead). Name shown via agentName (teamRoleLabel).
           const parentCh = os.characters.get(teammateParentId);
-          const palette = parentCh ? parentCh.palette : undefined;
+          const palette = preferredPalette !== undefined ? preferredPalette : (parentCh ? parentCh.palette : undefined);
           const hueShift = parentCh ? parentCh.hueShift : undefined;
           os.addAgent(id, palette, hueShift, undefined, undefined, parentCh?.folderName);
           // Set team metadata on the character
@@ -209,7 +218,12 @@ export function useExtensionMessages(
             ch.agentName = teammateName;
           }
         } else {
-          os.addAgent(id, undefined, undefined, undefined, undefined, folderName);
+          os.addAgent(id, preferredPalette, undefined, undefined, undefined, folderName);
+          const ch = os.characters.get(id);
+          if (ch) {
+            ch.teamName = teamName || '경찰서';
+            ch.agentName = agentName || teammateName;
+          }
         }
         saveAgentSeats(os);
       } else if (msg.type === 'agentClosed') {
@@ -242,7 +256,7 @@ export function useExtensionMessages(
         const incoming = msg.agents as number[];
         const meta = (msg.agentMeta || {}) as Record<
           number,
-          { palette?: number; hueShift?: number; seatId?: string }
+          { palette?: number; hueShift?: number; seatId?: string; agentName?: string; teammateName?: string; teamName?: string }
         >;
         const folderNames = (msg.folderNames || {}) as Record<number, string>;
         // Buffer agents — they'll be added in layoutLoaded after seats are built
@@ -254,6 +268,8 @@ export function useExtensionMessages(
             hueShift: m?.hueShift,
             seatId: m?.seatId,
             folderName: folderNames[id],
+            agentName: m?.agentName ?? m?.teammateName,
+            teamName: m?.teamName,
           });
         }
         setAgents((prev) => {

@@ -109,6 +109,8 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
         parentAgentId: agent.leadAgentId,
         teamName: agent.teamName,
         hooksOnly: agent.hooksOnly || undefined,
+        palette: agent.palette,
+        agentName: agent.agentName,
       });
     });
     this.store.on('agentRemoved', (id) => {
@@ -394,7 +396,7 @@ export class PixelAgentsViewProvider implements vscode.WebviewViewProvider {
         );
         const alwaysShowLabels = this.adapter.getSetting<boolean>(
           GLOBAL_KEY_ALWAYS_SHOW_LABELS,
-          false,
+          true,
         );
         this.runtime.watchAllSessions.current = watchAllSessions;
         const hooksEnabled = this.adapter.getSetting<boolean>(GLOBAL_KEY_HOOKS_ENABLED, true);

@@ -174,7 +174,7 @@ function handleWebviewReady(send: WsSend, ctx: ClientMessageContext): void {
     lastSeenVersion: adapter?.getSetting(KEY_LAST_SEEN_VERSION, '') ?? '',
     extensionVersion: process.env.PIXEL_AGENTS_VERSION ?? '',
     watchAllSessions,
-    alwaysShowLabels: adapter?.getSetting(KEY_ALWAYS_SHOW_LABELS, false) ?? false,
+    alwaysShowLabels: adapter?.getSetting(KEY_ALWAYS_SHOW_LABELS, true) ?? true,
     hooksEnabled,
     hooksInfoShown: adapter?.getSetting(KEY_HOOKS_INFO_SHOWN, false) ?? false,
     externalAssetDirectories: cfg.externalAssetDirectories,
@@ -203,7 +203,23 @@ function handleWebviewReady(send: WsSend, ctx: ClientMessageContext): void {
       externalAgents[id] = true;
     }
   }
-  const seats = adapter?.loadSeats() ?? {};
+  const seats = (adapter?.loadSeats() ?? {}) as Record<number, Record<string, unknown>>;
+  for (const [id, agent] of store) {
+    if (!seats[id]) {
+      seats[id] = {};
+    }
+    if (agent.palette !== undefined) {
+      seats[id].palette = agent.palette;
+    }
+    if (agent.agentName !== undefined) {
+      seats[id].agentName = agent.agentName;
+      seats[id].teammateName = agent.agentName;
+    }
+    if (agent.teamName !== undefined) {
+      seats[id].teamName = agent.teamName;
+    }
+  }
+
   send({
     type: 'existingAgents',
     agents: agentIds,

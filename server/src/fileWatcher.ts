@@ -861,6 +861,32 @@ export function adoptExternalSessionFromHook(
     // Hooks-only provider (OpenCode, Copilot): no transcript file, all state from hooks
     const id = nextAgentIdRef.current++;
     const folderName = cwd ? path.basename(cwd) : undefined;
+    
+    // Map openrouter session IDs to custom names and palettes
+    let agentName: string | undefined = undefined;
+    let palette: number | undefined = undefined;
+    let teamName: string | undefined = undefined;
+    let isTeamLead: boolean | undefined = undefined;
+    
+    if (sessionId === 'session-kim') {
+      agentName = '김순경';
+      palette = 0;
+      teamName = '경찰서';
+    } else if (sessionId === 'session-park') {
+      agentName = '박경장';
+      palette = 1;
+      teamName = '경찰서';
+    } else if (sessionId === 'session-choi') {
+      agentName = '최경사';
+      palette = 2;
+      teamName = '경찰서';
+    } else if (sessionId === 'session-yoo') {
+      agentName = '유총경';
+      palette = 3;
+      teamName = '경찰서';
+      isTeamLead = true;
+    }
+
     const agent: AgentState = {
       id,
       sessionId,
@@ -887,6 +913,10 @@ export function adoptExternalSessionFromHook(
       folderName,
       inputTokens: 0,
       outputTokens: 0,
+      agentName,
+      palette,
+      teamName,
+      isTeamLead,
     };
     agents.set(id, agent);
     persistAgents();

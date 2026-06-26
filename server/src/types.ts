@@ -58,11 +58,13 @@ export interface AgentState {
   leadAgentId?: number;
   /** True when lead spawns teammates via tmux (run_in_background Agent calls) */
   teamUsesTmux?: boolean;
+  palette?: number;
 }
 
 export interface PersistedAgent {
   id: number;
   sessionId?: string;
+  palette?: number;
   /** Terminal name — empty string for extension panel sessions */
   terminalName: string;
   /** Whether this agent was detected from an external source */
